@@ -52,4 +52,13 @@ be avoided, when we take mod of the sum to find the location. So we ask two ques
 The problem of storing and retrieving data in O(1) time comes down to answering the above questions. Picking a good hash 
 function is key to successfully implementing a hash table. What we mean by good is that the function must be easy to compute
 and avoid collisions as much as possible. If the function is hard to compute, then we lose the advantage gained for lookups
-in O(1).
+in O(1). Even if we pick a very good hash function, we still have to deal with "some" collision.
+
+#Finding a good hash function
+It is difficult to find a "perfect" hash function, that is a function that has no collisions. But we can do "better" by
+using hash functions as follows. Suppose we need to store a dictionary in a hash table. A dicitonary is a set of strings
+and we can define a hash function as follows. Assume that S is a string of length n and S=S1S2...Sn
+
+H(S)= H("S1S2...Sn") = S1 + pS2 + p^2S3 + ... + p^n-1 Sn
+where p is the prime number. Obviously, each string will lead to a unique number, but when we take the number ModTableSize,
+it is still possible that we may still have collisions
