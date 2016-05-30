@@ -61,4 +61,114 @@ and we can define a hash function as follows. Assume that S is a string of lengt
 
 H(S)= H("S1S2...Sn") = S1 + pS2 + p^2S3 + ... + p^n-1 Sn
 where p is the prime number. Obviously, each string will lead to a unique number, but when we take the number ModTableSize,
-it is still possible that we may still have collisions
+it is still possible that we may still have collisions but we have fewer collisions than when using a naive hash function
+like the sum of the characters.
+
+Although the function above minimizes the collisions, we have to deal with the fact that the function must be easy to compute. Rather than directly computing the above functions, we can reduce the number of computations by rearranging the
+terms as follows.
+
+H(S) = S1 + p(S2 + p(S3+...P(Sn-1 + pSn))))
+
+The rearrangement of terms allows us to compute a good hash value quickly.
+
+#Implementation of a Simple Hash Table
+A hash table is stored in an array that can be used to store data of any type. In this case, we will define a generic table
+that can store nodes of any type. That is, an array of void*'s can be defined as follows:
+
+                                 void* A[n];
+                            
+The array needs to be initialized using 
+
+                                for(i=0; i<n; i++)
+                                A[n]=NULL;
+                                
+Suppose we like to store strings in this table and be able to find them quickly. In order to find out where to store the strings, we need to find the value using a hash function. One possible hash function is
+
+Given a string S=S1 S2 .... Sn
+Define a hash function
+H(S)=H("S1S2....Sn")= S1 + p S2 + p^2 S3 + ... + p^n-1 Sn  -------------- (1)
+where each character is multiplied by the power of p, a prime number.
+
+The above equation can be factored to make the computation more effective. Using the factored form, we can define a 
+function hashcode that computes the hash value for a string s as follows.
+
+                                        int hashcode(char* s) {
+                                         int sum = s[strlen(s)-1], p=101;
+                                         int i;
+                                         for(i=1; i<strlen(s); i++) 
+                                          sum = s[strlen(s)-i-1] + p*sum;
+                                          return sum;
+                                         }
+                                         
+This allows any string to be placed in the table as follows. We assume a table size of 101.
+
+                                        A[hashCode(s) % 101] = s; //we assume the memory for s is already being allocated
+                                        
+One probelm with the above method is that if any collisions occur, that is two strings with the same hashcode, then we will lose one of the strings. Therefore we need to find a way to handle collisions of the table. 
+
+#Collision
+One problem with hashing is that it is possible with two strings can hash into the same location. This is called a collision. We can deal with collisions using many strategies, such as linear probing (looking for the next available
+location i+1, i+4, i+9, etc. from the hashed value i and separate chaining, the process of creating a linked list
+of values if they hashed into the same location. We will discuss hashing and collisions in detail in the next lesson.
+
+#EXERCISES
+1. Indicate whether you use an Array, Linked List, or Hash Table to store data in each of the following cases.
+
+ a. A list of employee records need to be stored in a manner that is easy to find min/max in the list.
+    A hash table is not good for sorting ordered data. Therefore an array is the best data structureto use based on need.
+ 
+ b. A data set contains many records with duplicate keys. Only thing needed is to keep the list in sorted order.
+    Since there are many duplicate keys, it would be challenging to find a good hash function. Therefore an array or linked 
+    list is the best data structure to use based on need.
+
+ c. A library needs to maintain books by their IBSN number. Only thing important is finding them as soon as possible.
+    The key here is the IBSN numbers are distinct, so therefore less likely to cause any collisions and the important 
+    thing is finding things fast. So hash table is ideal here.
+ 
+ d. A data set needs to be maintained in order to find the median of the set quickly.
+    Hash sets are not good data structures for finding data structures. So we would use a sorted array to store the
+    data and find the median immediately using the middle element in the array.
+    
+2. Given the hash function
+   H(S) = H("S1 S2 ... Sn") = S1 + p S2 + p^2 S3 + ... + p ^ n-1 Sn
+   Find the total number of multiplications and additions to compute hash code of the string "gunawardena"  using 
+   standard formula (given above) and as a factored form of the same formula as given by
+   H(S) = H("S1 S2...Sn")=S1+p[S2 + p[S3 + ...p[Sn-1 + pSn]]]]
+
+3. Given a hash table defined as void* A[n], complete the function 
+
+                                   insert(void*** Aptr, char* word);
+                                   
+   that inserts word to the hashtable using the hash function defined in O(1). You can assume the hashcode function is
+   given. Also assume there are no collisions (we will deal with collisions in the next lesson).
+   
+                       int insert(void*** Aptr, char* word) {
+                         if(*Aptr == NULL) /*assign memory*/
+                         *Aptr=malloc(LENGTH*sizeof(node*)); /*assume length defined*/
+                         (*Aptr)[hashCode(word)%TABLESIZE]=size;
+                         }
+                         
+4. How would you expand the definition of a hash table to include to create a linked list of nodes of all nodes that collided to the same hash code?
+          The idea here would be to define a node type as follows.
+           
+          typedef struct def {
+            char* node;
+            struct node* next;
+          } node;
+          
+Then each word that hashed into the same code can be inserted to the front of the list.
+
+           int insert(void*** Aptr, char* word){
+            if(*Aptr==NULL) /*assign memory*/
+            {*Aptr = malloc(LENGTH*sizeof(node*)); } /*assume length defined*/
+            int i=0;
+            for(i=0; i<LENGTH; i++) (*Aptr)[i]=NULL;
+            }
+            node* ptr=malloc(sizeof(node));
+            ptr-> word = malloc(strlen(word)+1);
+            strcopy(ptr->word,word);
+            ptr->next=(*Aptr)[hashcode(word)%TABLESIZE];
+            (*Aptr)[hashcode(word)%TABLESIZE]=ptr;
+            }
+                                        
+                                          
